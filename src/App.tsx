@@ -9,10 +9,7 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import Grid from "@material-ui/core/Grid";
 import AddShoppingCartIcon from "@material-ui/icons/AddShoppingCart";
 import Badge from "@material-ui/core/Badge";
-
-// Styles
 import { Wrapper, StyledButton } from "./App.styles";
-// Types
 
 export type CartItemType = {
   id: number;
@@ -23,10 +20,13 @@ export type CartItemType = {
   title: string;
   amount: number;
 };
+
+// Recuperation des données depuis une API 
 const getProducts = async (): Promise<CartItemType[]> =>
   await (await fetch("https://fakestoreapi.com/products")).json();
 
 const App = () => {
+	// Permet d'ouvrir le modal de cart
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([] as CartItemType[]);
   const { data, isLoading, error } = useQuery<CartItemType[]>(
@@ -35,9 +35,11 @@ const App = () => {
   );
   console.log(data);
 
+// Fonction qui calcule le total de chaque article dans le panier 
   const getTotalItems = (items: CartItemType[]) =>
     items.reduce((ack: number, item) => ack + item.amount, 0);
 
+// Methode permettant d'ajouter un article dans mon panier
   const handleAddToCart = (clickedItem: CartItemType) => {
     setCartItems((prev) => {
       // 1 Is the item already added in the item
@@ -50,12 +52,24 @@ const App = () => {
             : item
         );
       }
-	//   First time the item is added
-	return [...prev, {...clickedItem, amount:1}]
+      //   First time the item is added
+      return [...prev, { ...clickedItem, amount: 1 }];
     });
   };
 
-  const handleRemoveCart = () => null;
+//   Methode permettant de retirer un article dans le panier 
+  const handleRemoveFromCart = (id: number) => {
+    setCartItems((prev) =>
+      prev.reduce((ack, item) => {
+        if (item.id === id) {
+          if (item.amount === 1) return ack;
+          return [...ack, { ...item, amount: item.amount - 1 }];
+        } else {
+          return [...ack, item];
+        }
+      }, [] as CartItemType[])
+    );
+  };
 
   if (isLoading) return <LinearProgress />;
   if (error) return <div>Something went wrong ....</div>;
@@ -66,7 +80,7 @@ const App = () => {
         <Cart
           cartItems={cartItems}
           addToCart={handleAddToCart}
-          removeFromCart={handleRemoveCart}
+          removeFromCart={handleRemoveFromCart}
         />
       </Drawer>
       <StyledButton onClick={() => setCartOpen(true)}>
