@@ -1,7 +1,9 @@
-import React from "react";
-import Button from "@material-ui/core/Button";
-import { Wrapper } from "../Item/Item.styles";
-import { CartItemType } from "../App";
+import Button from '@material-ui/core/Button';
+// Types
+import { CartItemType } from '../App';
+// Styles
+import { Wrapper } from './CartItem.styles';
+
 type CartItemProperties = {
   item: CartItemType;
   addToCart: (clicked: CartItemType) => void;
